@@ -9,6 +9,10 @@
   *{box-sizing:border-box} html,body{margin:0;height:100%;overflow:hidden;background:#05070f;font-family:"Rubik","Heebo",-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink)}
   #c{position:fixed;inset:0;display:block}
   .ov{position:fixed;z-index:5}
+  #bubbles{position:fixed;inset:0;z-index:6;pointer-events:none;overflow:hidden}
+  .bub{position:absolute;left:0;top:0;max-width:180px;background:#0f1830f2;border:1px solid #2a3a63;color:#dbe6ff;font-size:12px;line-height:1.35;padding:6px 9px;border-radius:11px;box-shadow:0 6px 18px #0008;text-align:center;transition:opacity .3s}
+  .bub:after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#0f1830f2}
+  .bub.human{border-color:#3b82f6aa}.bub.virtual{border-color:#a855f7aa}.bub.ceo{border-color:#38e1c8aa}
   header{top:0;left:0;right:0;height:58px;display:flex;align-items:center;gap:16px;padding:0 18px;background:linear-gradient(180deg,#0a0f24ee,#0a0f2400)}
   .brand{font-weight:700;font-size:18px} .brand span{color:var(--joe)}
   .pill{display:flex;align-items:center;gap:7px;font-size:12.5px;border:1px solid #1c5b52;background:#0c2b28;padding:4px 10px;border-radius:999px;color:#c9f7ee}
@@ -37,11 +41,15 @@
   #closed{inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#05070fbb;backdrop-filter:blur(3px);z-index:8}
   #closed h1{font-size:26px;margin:0;font-weight:700} #closed p{color:var(--muted);margin:0;font-size:14px}
   #closed button{margin-top:6px;background:var(--joe);color:#04201c;border:0;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-  @media(max-width:640px){ aside{width:auto;inset-inline-start:8px;inset-inline-end:8px;top:auto;bottom:8px;height:150px} .legend{display:none} }
+  #gate{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:#05070f}
+  @media(max-width:640px){ aside{width:auto;inset-inline-start:8px;inset-inline-end:8px;top:auto;bottom:8px;height:120px} .legend{display:none} }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas><div id="gate" style="position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:#05070f;font-family:Arial"><div style="text-align:center"><div style="font-size:24px;font-weight:700;color:#eaf0ff;margin-bottom:4px">רצפת <span style="color:#38e1c8">ויראלי</span></div><div style="color:#8aa0c9;font-size:13px;margin-bottom:16px">הזן סיסמה לצפייה בלוח החי</div><input id="gp" type="password" placeholder="סיסמה" onkeydown="if(event.key==='Enter')gunlock()" style="padding:12px;border-radius:9px;border:1px solid #26365f;background:#0a1024;color:#fff;text-align:center;font-size:16px;outline:none"><div id="ge" style="color:#f79a9a;height:16px;font-size:12px;margin-top:6px"></div><button onclick="gunlock()" style="margin-top:8px;padding:12px 28px;border:0;border-radius:9px;background:#38e1c8;color:#04201c;font-weight:700;font-size:15px;cursor:pointer">כניסה</button></div></div><script>function gunlock(){if(document.getElementById('gp').value==='Floor2026'){document.getElementById('gate').style.display='none';}else{document.getElementById('ge').textContent='סיסמה שגויה';}}window.addEventListener('load',function(){var g=document.getElementById('gp');if(g)g.focus();});</script>
+<canvas id="c"></canvas>
+<div id="bubbles"></div>
+<div id="gate"><div style="text-align:center"><div style="font-size:24px;font-weight:700;color:#eaf0ff;margin-bottom:4px">רצפת <span style="color:#38e1c8">ויראלי</span></div><div style="color:#8aa0c9;font-size:13px;margin-bottom:16px">הזן סיסמה לצפייה בלוח החי</div><input id="gp" type="password" placeholder="סיסמה" onkeydown="if(event.key==='Enter')gunlock()" style="padding:12px;border-radius:9px;border:1px solid #26365f;background:#0a1024;color:#fff;text-align:center;font-size:16px;outline:none"><div id="ge" style="color:#f79a9a;height:16px;font-size:12px;margin-top:6px"></div><button onclick="gunlock()" style="margin-top:8px;padding:12px 28px;border:0;border-radius:9px;background:#38e1c8;color:#04201c;font-weight:700;font-size:15px;cursor:pointer">כניסה</button></div></div>
+<script>function gunlock(){if(document.getElementById('gp').value==='Floor2026'){document.getElementById('gate').style.display='none';}else{document.getElementById('ge').textContent='סיסמה שגויה';}}window.addEventListener('load',function(){var g=document.getElementById('gp');if(g)g.focus();});</script>
 <header class="ov">
   <div class="brand">רצפת <span>ויראלי</span></div>
   <div class="pill" id="statePill"><span class="dot" id="stateDot"></span><span id="stateTxt">LIVE</span></div>
@@ -72,8 +80,7 @@
 <script>
 const SUPA_URL="https://iawjaqsppavaqovzdlsg.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlhd2phcXNwcGF2YXFvdnpkbHNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2MzI4NDIsImV4cCI6MjEwMDIwODg0Mn0.2g7i5srm9ouYxV-7_ZnYjkEq4EZeJhr_z4Xqs1KN2pQ";
-const OFFICE_DAYS=[0,1,2,3,4];
-const OFFICE_START=9, OFFICE_END=17;
+const OFFICE_DAYS=[0,1,2,3,4]; const OFFICE_START=9, OFFICE_END=17;
 const ROSTER={
   joe:{name:"ג'ו",role:"CEO · Claude Opus 4.8",kind:"ceo",ring:0},
   codex:{name:"קודקס",role:"מוח · GPT",kind:"virtual",ring:2},
@@ -96,15 +103,14 @@ const ROSTER={
   human_bar:{name:"בר כהן",role:"Copy",kind:"human",ring:1}
 };
 const STCOL={work:0x22c55e,consult:0xf59e0b,idle:0x35406b,done:0x38bdf8,error:0xef4444};
-let mode="real";
-const maskMap={}; let maskN=0;
+let mode="real"; const maskMap={}; let maskN=0;
 function maskLabel(target,key){ if(mode==="real") return target||""; const k=key||target; if(!k) return ""; if(!maskMap[k]){ maskN++; maskMap[k]="לקוח #"+maskN; } return maskMap[k]; }
 const state={};
 const canvas=document.getElementById('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-const scene=new THREE.Scene(); scene.background=new THREE.Color(0x05070f); scene.fog=new THREE.Fog(0x05070f,28,56);
-let W=innerWidth,H2=innerHeight; const viewSize=25;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x05070f); scene.fog=new THREE.Fog(0x05070f,30,60);
+let W=innerWidth,H2=innerHeight; const viewSize=26;
 let cam=new THREE.OrthographicCamera(-viewSize*W/H2/2,viewSize*W/H2/2,viewSize/2,-viewSize/2,-100,200);
 cam.position.set(18,18,18); cam.lookAt(0,0,0);
 function resize(){ W=innerWidth;H2=innerHeight; const a=W/H2; cam.left=-viewSize*a/2;cam.right=viewSize*a/2;cam.top=viewSize/2;cam.bottom=-viewSize/2;cam.updateProjectionMatrix(); renderer.setSize(W,H2);}
@@ -112,7 +118,7 @@ addEventListener('resize',resize); resize();
 scene.add(new THREE.AmbientLight(0x6070a0,0.9));
 const kl=new THREE.DirectionalLight(0xffffff,0.85); kl.position.set(12,22,8); scene.add(kl);
 const rim=new THREE.DirectionalLight(0x38e1c8,0.35); rim.position.set(-10,8,-12); scene.add(rim);
-const floor=new THREE.Mesh(new THREE.CircleGeometry(15.5,64),new THREE.MeshStandardMaterial({color:0x0c1430,roughness:.95,metalness:.1})); floor.rotation.x=-Math.PI/2; floor.position.y=-.05; scene.add(floor);
+const floorM=new THREE.Mesh(new THREE.CircleGeometry(15.5,64),new THREE.MeshStandardMaterial({color:0x0c1430,roughness:.95,metalness:.1})); floorM.rotation.x=-Math.PI/2; floorM.position.y=-.05; scene.add(floorM);
 scene.add(new THREE.PolarGridHelper(15,16,10,64,0x1a2b52,0x14203f));
 const glow=new THREE.Mesh(new THREE.CircleGeometry(3.4,48),new THREE.MeshBasicMaterial({color:0x0e3b39,transparent:true,opacity:.5})); glow.rotation.x=-Math.PI/2; glow.position.y=.02; scene.add(glow);
 const SKIN=[0xf2c9a0,0xe8b489,0xc98a5e,0xa86a45,0xffdbac,0xd9a066,0x8d5524];
@@ -125,7 +131,8 @@ function smat(color,o){return new THREE.MeshStandardMaterial(Object.assign({colo
 function makeHuman(id,scale,suit){
   const h=hashId(id); const skin=pick(SKIN,h,1),hair=pick(HAIR,h,2),shirt=suit||pick(SHIRT,h,3),pants=pick(PANTS,h,4);
   const g=new THREE.Group(); const legMat=smat(pants),shirtMat=smat(shirt),skinMat=smat(skin,{roughness:.85}),hairMat=smat(hair,{roughness:.95});
-  [-.13,.13].forEach(x=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.11,.1,.5,8),legMat);l.position.set(x,.27,0);g.add(l);});
+  const legs=[];
+  [-.13,.13].forEach(x=>{const lp=new THREE.Group(); const l=new THREE.Mesh(new THREE.CylinderGeometry(.11,.1,.5,8),legMat);l.position.y=-.25;lp.add(l);lp.position.set(x,.52,0);g.add(lp);legs.push(lp);});
   const torso=new THREE.Mesh(new THREE.CylinderGeometry(.24,.32,.62,12),shirtMat);torso.position.y=.82;g.add(torso);
   const arms=[];
   [-.31,.31].forEach((x,i)=>{const a=new THREE.Group(); const up=new THREE.Mesh(new THREE.CylinderGeometry(.075,.07,.42,8),shirtMat);up.position.y=-.18;a.add(up); const hand=new THREE.Mesh(new THREE.SphereGeometry(.08,8,8),skinMat);hand.position.y=-.4;a.add(hand); a.position.set(x,1.02,0);a.rotation.z=(i?-1:1)*0.16;g.add(a);arms.push(a);});
@@ -133,13 +140,14 @@ function makeHuman(id,scale,suit){
   const cap=new THREE.Mesh(new THREE.SphereGeometry(.216,16,12,0,Math.PI*2,0,Math.PI*0.62),hairMat);cap.position.y=1.32;g.add(cap);
   const badgeMat=new THREE.MeshStandardMaterial({color:0x0c1428,emissive:0x000000,emissiveIntensity:0});
   const badge=new THREE.Mesh(new THREE.SphereGeometry(.05,10,10),badgeMat);badge.position.set(0,.98,.31);g.add(badge);
-  g.scale.setScalar(scale||1); g.userData.glowMats=[badgeMat]; g.userData.arms=arms; return g;
+  g.scale.setScalar(scale||1); g.userData.glowMats=[badgeMat]; g.userData.arms=arms; g.userData.legs=legs; return g;
 }
 function makeRobot(id){
   const h=hashId(id); const bodyC=[0x9aa7c7,0x8794b8,0x7c89b0,0xb0b8d0][h%4];
   const g=new THREE.Group(); const metal=smat(bodyC,{metalness:.6,roughness:.35});
   const glowM=new THREE.MeshStandardMaterial({color:0x2a1840,emissive:0xa855f7,emissiveIntensity:0.0});
-  [-.13,.13].forEach(x=>{const l=new THREE.Mesh(new THREE.BoxGeometry(.16,.5,.18),metal);l.position.set(x,.28,0);g.add(l);});
+  const legs=[];
+  [-.13,.13].forEach(x=>{const lp=new THREE.Group(); const l=new THREE.Mesh(new THREE.BoxGeometry(.16,.5,.18),metal);l.position.y=-.25;lp.add(l);lp.position.set(x,.53,0);g.add(lp);legs.push(lp);});
   const torso=new THREE.Mesh(new THREE.BoxGeometry(.55,.6,.34),metal);torso.position.y=.85;g.add(torso);
   const panel=new THREE.Mesh(new THREE.BoxGeometry(.28,.28,.04),glowM);panel.position.set(0,.9,.19);g.add(panel);
   const arms=[];
@@ -148,18 +156,15 @@ function makeRobot(id){
   const visor=new THREE.Mesh(new THREE.BoxGeometry(.28,.08,.04),glowM);visor.position.set(0,1.37,.16);g.add(visor);
   const ant=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.14,6),metal);ant.position.y=1.57;g.add(ant);
   const tip=new THREE.Mesh(new THREE.SphereGeometry(.05,10,10),glowM);tip.position.y=1.66;g.add(tip);
-  g.userData.glowMats=[glowM]; g.userData.arms=arms; return g;
+  g.userData.glowMats=[glowM]; g.userData.arms=arms; g.userData.legs=legs; return g;
 }
 function makeFigure(kind,id){ if(kind==='virtual') return makeRobot(id); if(kind==='ceo') return makeHuman(id,1.28,0x0e9c8e); return makeHuman(id,1.0); }
 const nodes={};
-function makeLabel(){ const cv=document.createElement('canvas'); cv.width=340; cv.height=150; const tx=new THREE.CanvasTexture(cv); const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthTest:false})); sp.scale.set(4.4,1.95,1); return {cv:cv,tx:tx,sp:sp}; }
+function makeLabel(){ const cv=document.createElement('canvas'); cv.width=340; cv.height=110; const tx=new THREE.CanvasTexture(cv); const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthTest:false})); sp.scale.set(4.2,1.35,1); return {cv:cv,tx:tx,sp:sp}; }
 function drawLabel(node){
   const cv=node.label.cv,tx=node.label.tx; const ctx=cv.getContext('2d'); ctx.clearRect(0,0,cv.width,cv.height); ctx.direction='rtl'; ctx.textAlign='center';
-  const st=state[node.id]||{}; const sc=STCOL[st.status]||STCOL.idle; const hex='#'+sc.toString(16).padStart(6,'0');
-  ctx.font='700 34px Rubik,Arial'; ctx.fillStyle='#eaf0ff'; ctx.fillText(node.def.name, cv.width/2, 40);
-  ctx.font='400 22px Rubik,Arial'; ctx.fillStyle='#8aa0c9'; ctx.fillText(node.def.role, cv.width/2, 70);
-  const doing=(st.status==='work'||st.status==='consult')? maskLabel(st.target,st.key):'';
-  if(doing){ ctx.font='500 22px Rubik,Arial'; const w=Math.min(ctx.measureText(doing).width+34,cv.width-20); const x=(cv.width-w)/2,y=92,hh=34,r=9; ctx.fillStyle='rgba(16,26,53,.92)'; ctx.strokeStyle=hex; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+hh,r);ctx.arcTo(x+w,y+hh,x,y+hh,r);ctx.arcTo(x,y+hh,x,y,r);ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle='#dbe6ff'; ctx.fillText(doing, cv.width/2, y+24); }
+  ctx.font='700 34px Rubik,Arial'; ctx.fillStyle='#eaf0ff'; ctx.fillText(node.def.name, cv.width/2, 42);
+  ctx.font='400 22px Rubik,Arial'; ctx.fillStyle='#8aa0c9'; ctx.fillText(node.def.role, cv.width/2, 74);
   tx.needsUpdate=true;
 }
 function buildNode(id,def,pos){
@@ -168,10 +173,12 @@ function buildNode(id,def,pos){
   const plat=new THREE.Mesh(new THREE.CylinderGeometry(pR,pR,.18,32),new THREE.MeshStandardMaterial({color:0x11203f,roughness:.8})); plat.position.y=.09; grp.add(plat);
   const ring=new THREE.Mesh(new THREE.TorusGeometry(pR-.05,.07,10,48),new THREE.MeshBasicMaterial({color:STCOL.idle})); ring.rotation.x=-Math.PI/2; ring.position.y=.19; grp.add(ring);
   if(def.kind!=='ceo'){ const desk=new THREE.Mesh(new THREE.BoxGeometry(.9,.5,.5),new THREE.MeshStandardMaterial({color:0x1b2b52,roughness:.7})); desk.position.set(0,.4,pR-.15); grp.add(desk); }
-  const fig=makeFigure(def.kind,id); grp.add(fig);
-  const label=makeLabel(); label.sp.position.y=(def.kind==='ceo'?4.0:3.35); grp.add(label.sp);
+  const label=makeLabel(); label.sp.position.set(0,(def.kind==='ceo'?2.7:2.4),0); grp.add(label.sp);
   scene.add(grp);
-  const node={id:id,def:def,grp:grp,ring:ring,fig:fig,label:label,base:pos}; nodes[id]=node; drawLabel(node); return node;
+  const fig=makeFigure(def.kind,id); fig.position.set(pos.x,0,pos.z); scene.add(fig);
+  const node={id:id,def:def,grp:grp,ring:ring,fig:fig,label:label,base:pos,
+    mv:{px:pos.x,pz:pos.z,face:0}};
+  nodes[id]=node; drawLabel(node); return node;
 }
 function layout(){
   const groups={0:[],1:[],2:[]}; Object.keys(ROSTER).forEach(id=>groups[ROSTER[id].ring].push(id));
@@ -180,31 +187,64 @@ function layout(){
   [1,2].forEach(rn=>{ const rr=rings[rn].r,ids=rings[rn].ids; const n=ids.length; ids.forEach((id,i)=>{ const a=(i/n)*Math.PI*2-Math.PI/2+Math.PI/n; buildNode(id,ROSTER[id],{x:Math.cos(a)*rr,z:Math.sin(a)*rr}); }); });
 }
 layout();
-const beams=[];
-function clearBeams(){ beams.forEach(b=>scene.remove(b)); beams.length=0; }
-function buildBeams(){ clearBeams(); Object.keys(state).forEach(id=>{ const s=state[id]; if(s.status!=='consult'||!s.parent) return; const a=nodes[id],b=nodes[s.parent]; if(!a||!b) return; const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(a.base.x,1.4,a.base.z),new THREE.Vector3(b.base.x,1.4,b.base.z)]); const ln=new THREE.Line(geo,new THREE.LineDashedMaterial({color:0xf59e0b,dashSize:.4,gapSize:.35,transparent:true,opacity:.9})); ln.computeLineDistances(); scene.add(ln); beams.push(ln); }); }
-function setActor(ev){ const id=ev.actor_id; if(!ROSTER[id]) return; state[id]={status:ev.status||'work',target:ev.target,key:ev.target_key,message:ev.message,ts:Date.now(),ttl:(ev.ttl_seconds||90)*1000,parent:ev.parent_actor}; const node=nodes[id]; if(node) drawLabel(node); buildBeams(); updateCounts(); if(ev.message||ev.action==='delegate'||ev.action==='consult'||ev.status==='consult') pushFeed(ev); }
+function setActor(ev){ const id=ev.actor_id; if(!ROSTER[id]) return; state[id]={status:ev.status||'work',target:ev.target,key:ev.target_key,message:ev.message,ts:Date.now(),ttl:(ev.ttl_seconds||90)*1000,parent:ev.parent_actor}; updateCounts(); if(ev.message||ev.action==='delegate'||ev.action==='consult'||ev.status==='consult') pushFeed(ev); }
 function pushFeed(ev){ const feed=document.getElementById('feed'); const who=ROSTER[ev.actor_id]?ROSTER[ev.actor_id].name:(ev.actor_name||ev.actor_id); const pk=ev.parent_actor&&ROSTER[ev.parent_actor]?ROSTER[ev.parent_actor].name:null; const kind=ROSTER[ev.actor_id]?ROSTER[ev.actor_id].kind:'virtual'; const cls=kind==='ceo'?'j':(kind==='human'?'h':'s'); const body=ev.message?(mode==='real'?ev.message:maskText(ev)):(maskLabel(ev.target,ev.target_key)||'עובד'); const div=document.createElement('div'); div.className='msg'; div.innerHTML='<div class="who '+cls+'">'+who+(pk?' <span class="ar">→ '+pk+'</span>':'')+'</div><div class="txt">'+escapeHtml(body)+'</div><div class="t">עכשיו</div>'; feed.prepend(div); while(feed.children.length>8) feed.removeChild(feed.lastChild); }
 function maskText(ev){ let t=ev.message||''; if(ev.target){ t=t.split(ev.target).join(maskLabel(ev.target,ev.target_key)); } return t.length>90?t.slice(0,90)+'…':t; }
 function escapeHtml(s){return (s||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
 function updateCounts(){ let active=0,ag=0,tm=0; Object.keys(state).forEach(id=>{ const s=state[id]; const d=ROSTER[id]; if(!d)return; const on=(s.status==='work'||s.status==='consult'); if(on){active++; if(d.kind==='virtual')ag++; if(d.kind==='human')tm++;} }); document.getElementById('cActive').textContent=active; document.getElementById('cAgents').textContent=ag; document.getElementById('cTeam').textContent=tm; }
-setInterval(function(){ const now=Date.now(); let ch=false; Object.keys(state).forEach(id=>{ const s=state[id]; if(s.status!=='idle'&&now-s.ts>s.ttl){ s.status='idle'; s.target=''; ch=true; const n=nodes[id]; if(n)drawLabel(n);} }); if(ch){ buildBeams(); updateCounts(); } },2000);
+setInterval(function(){ const now=Date.now(); Object.keys(state).forEach(id=>{ const s=state[id]; if(s.status!=='idle'&&now-s.ts>s.ttl){ s.status='idle'; s.target=''; s.message=''; } }); updateCounts(); },2000);
 let sb=null;
-function setActorSilent(ev){ const id=ev.actor_id; if(!ROSTER[id])return; const now=Date.now(),age=now-new Date(ev.ts).getTime(); const ttl=(ev.ttl_seconds||90)*1000; const status=age>ttl?'idle':(ev.status||'work'); state[id]={status:status,target:status==='idle'?'':ev.target,key:ev.target_key,message:ev.message,ts:new Date(ev.ts).getTime(),ttl:ttl,parent:ev.parent_actor}; }
-function initData(){ try{ sb=window.supabase.createClient(SUPA_URL,SUPA_KEY,{realtime:{params:{eventsPerSecond:5}}}); }catch(e){ console.warn('sb init',e); return; } sb.from('office_events').select('*').order('id',{ascending:false}).limit(60).then(function(res){ const data=res.data; if(!data)return; data.slice().reverse().forEach(setActorSilent); data.slice(0,8).reverse().forEach(function(ev){ if(ev.message||ev.status==='consult')pushFeed(ev); }); Object.values(nodes).forEach(drawLabel); buildBeams(); updateCounts(); }); sb.channel('office_live').on('postgres_changes',{event:'INSERT',schema:'public',table:'office_events'},function(p){ setActor(p.new); }).subscribe(); }
-function ilNow(){ try{ const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()); const g=t=>{const o=p.find(x=>x.type===t);return o?o.value:'';}; const wd={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}; let hr=parseInt(g('hour'),10); if(hr===24)hr=0; return {day:wd[g('weekday')],hour:hr,label:g('weekday')+' '+g('hour')+':'+g('minute')}; }catch(e){ return {day:0,hour:NaN,label:''}; } }
+function setActorSilent(ev){ const id=ev.actor_id; if(!ROSTER[id])return; const now=Date.now(),age=now-new Date(ev.ts).getTime(); const ttl=(ev.ttl_seconds||90)*1000; const status=age>ttl?'idle':(ev.status||'work'); state[id]={status:status,target:status==='idle'?'':ev.target,key:ev.target_key,message:status==='idle'?'':ev.message,ts:new Date(ev.ts).getTime(),ttl:ttl,parent:ev.parent_actor}; }
+function initData(){ try{ sb=window.supabase.createClient(SUPA_URL,SUPA_KEY,{realtime:{params:{eventsPerSecond:5}}}); }catch(e){ console.warn('sb init',e); return; } sb.from('office_events').select('*').order('id',{ascending:false}).limit(60).then(function(res){ const data=res.data; if(!data)return; data.slice().reverse().forEach(setActorSilent); data.slice(0,8).reverse().forEach(function(ev){ if(ev.message||ev.status==='consult')pushFeed(ev); }); updateCounts(); }); sb.channel('office_live').on('postgres_changes',{event:'INSERT',schema:'public',table:'office_events'},function(p){ setActor(p.new); }).subscribe(); }
+function ilNow(){ try{ const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Jerusalem',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()); const g=t=>{const o=p.find(x=>x.type===t);return o?o.value:'';}; const wd={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}; let hr=parseInt(g('hour'),10); if(hr===24)hr=0; return {day:wd[g('weekday')],hour:hr}; }catch(e){ return {day:0,hour:NaN}; } }
 function officeOpen(){ const n=ilNow(); if(isNaN(n.hour)) return true; return OFFICE_DAYS.includes(n.day)&&n.hour>=OFFICE_START&&n.hour<OFFICE_END; }
 let previewForced=false;
-function ilClock(){ try{ return new Date().toLocaleString('he-IL',{timeZone:'Asia/Jerusalem',weekday:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ilNow().label; } }
-function refreshState(){ const open=officeOpen(); const pill=document.getElementById('statePill'),dot=document.getElementById('stateDot'),txt=document.getElementById('stateTxt'),closed=document.getElementById('closed'); document.getElementById('clock').textContent=ilClock(); if(open){ pill.className='pill'; dot.className='dot'; txt.textContent='LIVE · שעות משרד'; closed.style.display='none'; } else { pill.className='pill closed'; dot.className='dot off'; txt.textContent='מחוץ לשעות'; closed.style.display=previewForced?'none':'flex'; } }
+function ilClock(){ try{ return new Date().toLocaleString('he-IL',{timeZone:'Asia/Jerusalem',weekday:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+function refreshState(){ const open=officeOpen(); const pill=document.getElementById('statePill'),dot=document.getElementById('stateDot'),txt=document.getElementById('stateTxt'),closed=document.getElementById('closed'); document.getElementById('clock').textContent=ilClock(); const anyActive=Object.keys(state).some(id=>{const s=state[id];return s&&(s.status==='work'||s.status==='consult');}); if(open){ pill.className='pill'; dot.className='dot'; txt.textContent = anyActive?'LIVE · פעילות':'LIVE · שקט'; closed.style.display='none'; } else { pill.className='pill closed'; dot.className='dot off'; txt.textContent='מחוץ לשעות'; closed.style.display=previewForced?'none':'flex'; } }
 document.getElementById('previewBtn').onclick=function(){ previewForced=true; refreshState(); };
-setInterval(refreshState,15000); refreshState();
-document.getElementById('mReal').onclick=function(){mode="real";document.getElementById('mReal').classList.add('on');document.getElementById('mShow').classList.remove('on');Object.values(nodes).forEach(drawLabel);};
-document.getElementById('mShow').onclick=function(){mode="show";document.getElementById('mShow').classList.add('on');document.getElementById('mReal').classList.remove('on');Object.values(nodes).forEach(drawLabel);};
-let tt=0;
-function animate(){ requestAnimationFrame(animate); tt+=0.016;
-  Object.keys(nodes).forEach(id=>{ const n=nodes[id]; const s=state[id]||{status:'idle'}; const col=STCOL[s.status]||STCOL.idle; n.ring.material.color.setHex(col); const on=(s.status==='work'||s.status==='consult'); const pulse=on?(0.5+0.5*Math.sin(tt*3+n.base.x)):0; n.ring.scale.setScalar(1+pulse*0.06); (n.fig.userData.glowMats||[]).forEach(function(m){ m.emissive.setHex(col); m.emissiveIntensity=on?(0.4+pulse*0.7):0.0; }); n.fig.position.y=on?Math.abs(Math.sin(tt*2+n.base.z))*0.12:0; (n.fig.userData.arms||[]).forEach(function(a,i){ a.rotation.x=on?Math.sin(tt*4+(i?Math.PI:0)+n.base.x)*0.5:0; }); });
-  beams.forEach(function(b){ b.material.opacity=0.5+0.5*Math.abs(Math.sin(tt*2)); });
+setInterval(refreshState,5000); refreshState();
+document.getElementById('mReal').onclick=function(){mode="real";document.getElementById('mReal').classList.add('on');document.getElementById('mShow').classList.remove('on');};
+document.getElementById('mShow').onclick=function(){mode="show";document.getElementById('mShow').classList.add('on');document.getElementById('mReal').classList.remove('on');};
+const bubbleEls={};
+const _v=new THREE.Vector3();
+function updateBubbles(){
+  Object.keys(nodes).forEach(id=>{
+    const st=state[id]||{}; const node=nodes[id]; const mv=node.mv;
+    const on=(st.status==='work'||st.status==='consult');
+    let txt='';
+    if(on){ if(st.status==='consult'){ txt = st.message || ('מתייעץ עם '+(ROSTER[st.parent]?ROSTER[st.parent].name:"ג'ו")); } else { txt = st.message || maskLabel(st.target,st.key) || ''; } if(mode==='show'&&st.target){ txt=txt.split(st.target).join(maskLabel(st.target,st.key)); } }
+    let el=bubbleEls[id];
+    if(!txt){ if(el){ el.remove(); delete bubbleEls[id]; } return; }
+    if(!el){ el=document.createElement('div'); el.className='bub '+node.def.kind; document.getElementById('bubbles').appendChild(el); bubbleEls[id]=el; el.dataset.t=''; }
+    if(el.dataset.t!==txt){ el.textContent=txt.length>64?txt.slice(0,64)+'…':txt; el.dataset.t=txt; }
+    _v.set(mv.px,2.75,mv.pz); _v.project(cam);
+    const sx=(_v.x*0.5+0.5)*W, sy=(-_v.y*0.5+0.5)*H2;
+    el.style.transform='translate(-50%,-100%) translate('+sx.toFixed(1)+'px,'+sy.toFixed(1)+'px)';
+    el.style.opacity=(_v.z<1)?'1':'0';
+  });
+}
+let tt=0, last=performance.now();
+function animate(){ requestAnimationFrame(animate); const now=performance.now(); const dt=Math.min(.05,(now-last)/1000); last=now; tt+=dt;
+  Object.keys(nodes).forEach(id=>{
+    const node=nodes[id], mv=node.mv, st=state[id]||{status:'idle'};
+    const parent=(st.status==='consult'&&st.parent&&nodes[st.parent])?nodes[st.parent]:null;
+    let wantX=node.base.x, wantZ=node.base.z;
+    if(parent){ const p=parent.base; const dx=node.base.x-p.x,dz=node.base.z-p.z,dd=Math.hypot(dx,dz)||1; wantX=p.x+dx/dd*1.9; wantZ=p.z+dz/dd*1.9; }
+    const ex=wantX-mv.px, ez=wantZ-mv.pz; const dist=Math.hypot(ex,ez); const moving=dist>0.12;
+    let wantFace=mv.face;
+    if(moving){ const sp=Math.min(dist,dt*3.4); mv.px+=ex/dist*sp; mv.pz+=ez/dist*sp; wantFace=Math.atan2(ex,ez); }
+    else if(parent){ wantFace=Math.atan2(parent.base.x-mv.px, parent.base.z-mv.pz); }
+    let df=(wantFace-mv.face); df=Math.atan2(Math.sin(df),Math.cos(df)); mv.face+=df*Math.min(1,dt*9);
+    node.fig.position.x=mv.px; node.fig.position.z=mv.pz; node.fig.rotation.y=mv.face;
+    const on=(st.status==='work'||st.status==='consult');
+    const legs=node.fig.userData.legs||[], arms=node.fig.userData.arms||[];
+    if(moving){ node.fig.position.y=Math.abs(Math.sin(tt*11))*0.05; legs.forEach((l,i)=>{l.rotation.x=Math.sin(tt*11+(i?Math.PI:0))*0.5;}); arms.forEach((a,i)=>{a.rotation.x=Math.sin(tt*11+(i?0:Math.PI))*0.4;}); }
+    else { legs.forEach(l=>{l.rotation.x*=0.8;}); if(st.status==='work'){ node.fig.position.y=Math.abs(Math.sin(tt*2.4+node.base.z))*0.09; arms.forEach((a,i)=>{a.rotation.x=Math.sin(tt*6+(i?Math.PI:0))*0.35;}); } else if(st.status==='consult'){ node.fig.position.y=0; arms.forEach((a,i)=>{a.rotation.x=Math.sin(tt*3.5+(i?Math.PI:0))*0.25;}); } else { node.fig.position.y=Math.sin(tt*1.4+node.base.x)*0.02; arms.forEach(a=>{a.rotation.x*=0.85;}); } }
+    const col=STCOL[st.status]||STCOL.idle; node.ring.material.color.setHex(col);
+    const pulse=on?(0.5+0.5*Math.sin(tt*3+node.base.x)):0; node.ring.scale.setScalar(1+pulse*0.06);
+    (node.fig.userData.glowMats||[]).forEach(m=>{ m.emissive.setHex(col); m.emissiveIntensity=on?(0.4+pulse*0.6):0.0; });
+  });
+  updateBubbles();
   scene.rotation.y=Math.sin(tt*0.05)*0.04; renderer.render(scene,cam);
 }
 animate();
